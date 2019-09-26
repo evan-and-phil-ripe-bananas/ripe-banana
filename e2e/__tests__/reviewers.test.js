@@ -51,4 +51,18 @@ describe('reviewers api', () => {
         });
     });
   });
+
+  it('updates a reviewer', () => {
+    return postReviewer(gene)
+      .then(reviewer => {
+        reviewer.company = 'Netflix';
+        return request
+         .put(`/api/reviewers/${reviewer._id}`)
+         .send(reviewer)
+         .expect(200);
+      })
+      .then(({ body }) => {
+        expect(body.company).toBe('Netflix');
+      })
+  });
 });
