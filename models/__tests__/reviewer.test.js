@@ -20,4 +20,12 @@ describe('Reviewer model', ()=> {
     });
     
   });
+
+  it('validates required properties', () => {
+    const data = {};
+    const reviewer = new Reviewer(data);
+    const { errors } = reviewer.validateSync();
+    expect(errors.name.kind).toBe('required');
+    expect(errors.company.kind).toBe('required');
+  })
 });
