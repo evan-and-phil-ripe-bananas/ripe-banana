@@ -28,4 +28,27 @@ describe('reviewers api', () => {
       });
     });
   });
+
+  it('gets a reviewer by id', () => {
+    return postReviewer(gene).then(reviewer => {
+      return request
+        .get(`/api/reviewers/${reviewer._id}`)
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).toMatchInlineSnapshot(
+            {
+              _id: expect.any(String)
+            },
+            `
+            Object {
+              "__v": 0,
+              "_id": Any<String>,
+              "company": "HBO",
+              "name": "Gene Siskel",
+            }
+          `
+          );
+        });
+    });
+  });
 });
