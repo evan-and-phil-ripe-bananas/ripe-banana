@@ -31,4 +31,22 @@ describe('Studio api', () => {
       });
     });
   });
+  it('gets all studios', () => {
+    return Promise.all([
+      postStudio(hbo),
+      postStudio(hbo),
+      postStudio(hbo)
+    ])
+      .then(() => {
+        return request.get('/api/studios').expect(200)
+      })
+      .then(({ body }) => {
+        expect(body.length).toBe(3);
+        expect(body[0]).toEqual({
+          _id: expect.any(String),
+          __v: 0,
+          ...hbo
+        });
+      });
+  });    
 });
