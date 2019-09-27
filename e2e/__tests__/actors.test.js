@@ -8,7 +8,7 @@ describe('actors api', () => {
 
   const brad = {
     name: 'Brad Pitt',
-    dob: new Date(1963,11,18),
+    dob: new Date(1963, 11, 18),
     pob: 'Shawnee, OK'
   };
 
@@ -33,11 +33,7 @@ describe('actors api', () => {
   });
 
   it('gets all actors', () => {
-    return Promise.all([
-      postActor(brad),
-      postActor(brad),
-      postActor(brad)
-    ])
+    return Promise.all([postActor(brad), postActor(brad), postActor(brad)])
       .then(() => {
         return request.get('/api/actors').expect(200);
       })
@@ -51,5 +47,29 @@ describe('actors api', () => {
           __v: 0
         });
       });
+  });
+
+  it('gets an actor by id', () => {
+    return postActor(brad).then(actor => {
+      return request
+        .get(`/api/actors/${actor._id}`)
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).toMatchInlineSnapshot(
+            {
+              _id: expect.any(String)
+            },
+            `
+            Object {
+              "__v": 0,
+              "_id": Any<String>,
+              "dob": "1963-12-18T08:00:00.000Z",
+              "name": "Brad Pitt",
+              "pob": "Shawnee, OK",
+            }
+          `
+          );
+        });
+    });
   });
 });
