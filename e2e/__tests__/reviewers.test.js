@@ -65,4 +65,23 @@ describe('reviewers api', () => {
         expect(body.company).toBe('Netflix');
       })
   });
+
+  it('gets all reviewers', () => {
+    return Promise.all([
+      postReviewer(gene),
+      postReviewer(gene),
+      postReviewer(gene),
+    ])
+      .then(() => {
+        return request.get('/api/reviewers').expect(200);
+      })
+      .then(({ body }) => {
+        expect(body.length).toBe(3);
+        expect(body[0]).toEqual({
+          _id: expect.any(String),
+          __v: 0,
+          ...gene
+        });
+      });
+  });
 });
