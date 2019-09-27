@@ -31,4 +31,25 @@ describe('actors api', () => {
       });
     });
   });
-})
+
+  it('gets all actors', () => {
+    return Promise.all([
+      postActor(brad),
+      postActor(brad),
+      postActor(brad)
+    ])
+      .then(() => {
+        return request.get('/api/actors').expect(200);
+      })
+      .then(({ body }) => {
+        expect(body.length).toBe(3);
+        expect(body[0]).toEqual({
+          name: 'Brad Pitt',
+          dob: expect.any(String),
+          pob: 'Shawnee, OK',
+          _id: expect.any(String),
+          __v: 0
+        });
+      });
+  });
+});
