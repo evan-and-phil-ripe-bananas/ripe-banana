@@ -8,7 +8,7 @@ describe('Studio api', () => {
 
   const hbo = {
     name: 'HBO',
-    address:{
+    address: {
       city: 'New York',
       state: 'New York',
       country: 'United States'
@@ -32,13 +32,9 @@ describe('Studio api', () => {
     });
   });
   it('gets all studios', () => {
-    return Promise.all([
-      postStudio(hbo),
-      postStudio(hbo),
-      postStudio(hbo)
-    ])
+    return Promise.all([postStudio(hbo), postStudio(hbo), postStudio(hbo)])
       .then(() => {
-        return request.get('/api/studios').expect(200)
+        return request.get('/api/studios').expect(200);
       })
       .then(({ body }) => {
         expect(body.length).toBe(3);
@@ -48,5 +44,31 @@ describe('Studio api', () => {
           ...hbo
         });
       });
-  });    
+  });
+  it('gets a studio by id', () => {
+    return postStudio(hbo).then(studio => {
+      return request
+        .get(`/api/studios/${studio._id}`)
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).toMatchInlineSnapshot(
+            {
+              _id: expect.any(String)
+            },
+            `
+            Object {
+              "__v": 0,
+              "_id": Any<String>,
+              "address": Object {
+                "city": "New York",
+                "country": "United States",
+                "state": "New York",
+              },
+              "name": "HBO",
+            }
+          `
+          );
+        });
+    });
+  });
 });
