@@ -70,41 +70,64 @@ describe('films api', () => {
       });
   });
   it('gets a film by id', () => {
-  //   return postFilm(data).then(film => {
-  //     return request
-  //       .post(`/api/actors`)
-  //       .send({
-  //         name: 'Brad Pitt',
-  //         dob: new Date(12 / 18 / 1963),
-  //         pob: 'Shawnee, OK'
-  //       })
-  //       .expect(200)
-  //       .then(() => {
-  //         return request.get(`/api/films/${film._id}`).expect(200);
-  //       })
-  //       .then(({ body }) => {
-  //         console.log(body);
-  //         expect(body).toMatchInlineSnapshot(
-  //           {
-  //             _id: expect.any(String),
-  //             cast: [
-  //               // {
-  //               //   _id: expect.any(String)
-  //               // }
-  //             ]
-  //           },
-  //           `
-  //           Object {
-  //             "__v": 0,
-  //             "_id": Any<String>,
-  //             "cast": Array [],
-  //             "released": 1999,
-  //             "studio": "5d8e9b422b20505223c485ef",
-  //             "title": "The Matrix",
-  //           }
-  //         `
-  //         );
-  //       });
-  //   });
-  // });
+    return request
+      .post(`/api/actors`)
+      .send({
+        name: 'Brad Pitt',
+        dob: new Date(12 / 18 / 1963),
+        pob: 'Shawnee, OK',
+        _id: '5d8eaacfd7d2c9ba109ae858'
+      })
+      .then(({ body }) => body)
+      .then(actor => {
+        const matrix = {
+          title: 'The Matrix',
+          studio: new mongoose.Types.ObjectId(),
+          released: 1999,
+          cast: [
+            {
+              role: 'wizard',
+              actor: actor._id
+            }
+          ]
+        };
+        return postFilm(matrix).then(film => {
+          expect(200);
+          return request
+            .get(`/api/films/${film._id}`)
+            .expect(200)
+            .then(({ body }) => {
+              expect(body).toMatchInlineSnapshot(
+                {
+                  _id: expect.any(String),
+                  cast: [
+                    {
+                      _id: expect.any(String)
+                    }
+                  ]
+                },
+                `
+                Object {
+                  "__v": 0,
+                  "_id": Any<String>,
+                  "cast": Array [
+                    Object {
+                      "_id": Any<String>,
+                      "actor": Object {
+                        "_id": "5d8eaacfd7d2c9ba109ae858",
+                        "name": "Brad Pitt",
+                      },
+                      "role": "wizard",
+                    },
+                  ],
+                  "released": 1999,
+                  "studio": null,
+                  "title": "The Matrix",
+                }
+              `
+              );
+            });
+        });
+      });
+  });
 });
