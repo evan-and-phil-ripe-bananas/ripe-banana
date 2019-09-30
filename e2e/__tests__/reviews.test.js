@@ -27,12 +27,29 @@ describe('reviews api', () => {
       .then(review => {
         expect(review).toEqual({
           rating: 5,
+          review: 'It\'s great!',
           reviewer: expect.any(String),
+          film: expect.any(String),
+          _id: expect.any(String),
+          __v: 0
+        });
+      });
+  });
+
+  it('gets all reviews', () => {
+    return Promise.all([postReview(data), postReview(data), postReview(data)])
+      .then(() => {
+        return request.get('/api/reviews').expect(200);
+      })
+      .then(({ body }) => {
+        expect(body.length).toBe(3);
+        expect(body[0]).toEqual({
+          rating: 5,
           review: 'It\'s great!',
           film: expect.any(String),
           _id: expect.any(String),
           __v: 0
-        })
-      })
-  })
-})
+        });
+      });
+  });
+});
