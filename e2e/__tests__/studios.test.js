@@ -1,5 +1,6 @@
 const request = require('../request');
 const db = require('../db');
+const mongoose = require('mongoose');
 
 describe('Studio api', () => {
   beforeEach(() => {
@@ -15,6 +16,18 @@ describe('Studio api', () => {
     }
   };
 
+  const data = {
+    title: 'The Matrix',
+    studio: new mongoose.Types.ObjectId(),
+    released: 1999,
+    cast: [
+      {
+        role: 'wizard',
+        actor: new mongoose.Types.ObjectId()
+      }
+    ]
+  };
+
   function postStudio(studio) {
     return request
       .post('/api/studios')
@@ -22,6 +35,7 @@ describe('Studio api', () => {
       .expect(200)
       .then(({ body }) => body);
   }
+
   it('posts a studio', () => {
     return postStudio(hbo).then(studio => {
       expect(studio).toEqual({
@@ -31,6 +45,7 @@ describe('Studio api', () => {
       });
     });
   });
+
   it('gets all studios', () => {
     return Promise.all([postStudio(hbo), postStudio(hbo), postStudio(hbo)])
       .then(() => {
@@ -45,29 +60,43 @@ describe('Studio api', () => {
         });
       });
   });
+
   it('gets a studio by id', () => {
     return postStudio(hbo).then(studio => {
+      data.studio = studio._id;
       return request
-        .get(`/api/studios/${studio._id}`)
+        .post('/api/films')
+        .send(data)
         .expect(200)
-        .then(({ body }) => {
-          expect(body).toMatchInlineSnapshot(
-            {
-              _id: expect.any(String)
-            },
-            `
-            Object {
-              "__v": 0,
-              "_id": Any<String>,
-              "address": Object {
-                "city": "New York",
-                "country": "United States",
-                "state": "New York",
-              },
-              "name": "HBO",
-            }
-          `
-          );
+        .then(() => {
+          return request
+            .get(`/api/studios/${studio._id}`)
+            .expect(200)
+            .then(({ body }) => {
+              expect(body).toMatchInlineSnapshot(
+                {
+                  _id: expect.any(String),
+                  films: [{ _id: expect.any(String) }]
+                },
+                `
+                Object {
+                  "__v": 0,
+                  "_id": Any<String>,
+                  "address": Object {
+                    "city": "New York",
+                    "country": "United States",
+                    "state": "New York",
+                  },
+                  "films": Array [
+                    Object {
+                      "_id": Any<String>,
+                    },
+                  ],
+                  "name": "HBO",
+                }
+              `
+              );
+            });
         });
     });
   });
