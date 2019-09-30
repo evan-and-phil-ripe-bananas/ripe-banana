@@ -69,6 +69,7 @@ describe('films api', () => {
         });
       });
   });
+
   it('gets a film by id', () => {
     return request
       .post(`/api/actors`)
@@ -129,5 +130,11 @@ describe('films api', () => {
             });
         });
       });
+  });
+
+  it('deletes a film', () => {
+    return postFilm(data).then(film => {
+      return request.delete(`/api/films/${film._id}`).expect(200);
+    });
   });
 });
