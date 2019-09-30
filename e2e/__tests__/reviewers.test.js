@@ -1,5 +1,6 @@
 const request = require('../request');
 const db = require('../db');
+const mongoose = require('mongoose');
 
 describe('reviewers api', () => {
   beforeEach(() => {
@@ -9,6 +10,13 @@ describe('reviewers api', () => {
   const gene = {
     name: 'Gene Siskel',
     company: 'HBO'
+  };
+
+  const data = {
+    rating: 5,
+    reviewer: new mongoose.Types.ObjectId(),
+    review: "It's great!",
+    film: new mongoose.Types.ObjectId()
   };
 
   function postReviewer(obj) {
@@ -31,23 +39,36 @@ describe('reviewers api', () => {
 
   it('gets a reviewer by id', () => {
     return postReviewer(gene).then(reviewer => {
+      data.reviewer = reviewer._id;
       return request
-        .get(`/api/reviewers/${reviewer._id}`)
+        .post('/api/reviews')
+        .send(data)
         .expect(200)
-        .then(({ body }) => {
-          expect(body).toMatchInlineSnapshot(
-            {
-              _id: expect.any(String)
-            },
-            `
-            Object {
-              "__v": 0,
-              "_id": Any<String>,
-              "company": "HBO",
-              "name": "Gene Siskel",
-            }
-          `
-          );
+        .then(() => {
+          return request
+            .get(`/api/reviewers/${reviewer._id}`)
+            .expect(200)
+            .then(({ body }) => {
+              expect(body).toMatchInlineSnapshot(
+                {
+                  _id: expect.any(String),
+                  reviews: [{ _id: expect.any(String) }]
+                },
+                `
+                Object {
+                  "__v": 0,
+                  "_id": Any<String>,
+                  "company": "HBO",
+                  "name": "Gene Siskel",
+                  "reviews": Array [
+                    Object {
+                      "_id": Any<String>,
+                    },
+                  ],
+                }
+              `
+              );
+            });
         });
     });
   });
@@ -57,20 +78,20 @@ describe('reviewers api', () => {
       .then(reviewer => {
         reviewer.company = 'Netflix';
         return request
-         .put(`/api/reviewers/${reviewer._id}`)
-         .send(reviewer)
-         .expect(200);
+          .put(`/api/reviewers/${reviewer._id}`)
+          .send(reviewer)
+          .expect(200);
       })
       .then(({ body }) => {
         expect(body.company).toBe('Netflix');
-      })
+      });
   });
 
   it('gets all reviewers', () => {
     return Promise.all([
       postReviewer(gene),
       postReviewer(gene),
-      postReviewer(gene),
+      postReviewer(gene)
     ])
       .then(() => {
         return request.get('/api/reviewers').expect(200);
