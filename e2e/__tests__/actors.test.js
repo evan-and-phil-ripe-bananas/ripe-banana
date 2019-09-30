@@ -87,7 +87,7 @@ describe('actors api', () => {
                 Object {
                   "__v": 0,
                   "_id": Any<String>,
-                  "dob": "1963-12-18T08:00:00.000Z",
+                  "dob": "1963-12-18T00:00:00.000Z",
                   "films": Array [
                     Object {
                       "_id": Any<String>,
