@@ -1,5 +1,6 @@
 const request = require('../request');
 const db = require('../db');
+const mongoose = require('mongoose');
 
 describe('actors api', () => {
   beforeEach(() => {
@@ -10,6 +11,18 @@ describe('actors api', () => {
     name: 'Brad Pitt',
     dob: new Date(1963, 11, 18),
     pob: 'Shawnee, OK'
+  };
+
+  const data = {
+    title: 'The Matrix',
+    studio: new mongoose.Types.ObjectId(),
+    released: 1999,
+    cast: [
+      {
+        role: 'wizard',
+        actor: new mongoose.Types.ObjectId()
+      }
+    ]
   };
 
   function postActor(obj) {
@@ -51,24 +64,43 @@ describe('actors api', () => {
 
   it('gets an actor by id', () => {
     return postActor(brad).then(actor => {
+      data.cast[0].actor = actor._id;
       return request
-        .get(`/api/actors/${actor._id}`)
+        .post('/api/films')
+        .send(data)
         .expect(200)
-        .then(({ body }) => {
-          expect(body).toMatchInlineSnapshot(
-            {
-              _id: expect.any(String)
-            },
-            `
-            Object {
-              "__v": 0,
-              "_id": Any<String>,
-              "dob": "1963-12-18T08:00:00.000Z",
-              "name": "Brad Pitt",
-              "pob": "Shawnee, OK",
-            }
-          `
-          );
+        .then(() => {
+          return request
+            .get(`/api/actors/${actor._id}`)
+            .expect(200)
+            .then(({ body }) => {
+              expect(body).toMatchInlineSnapshot(
+                {
+                  _id: expect.any(String),
+                  films: [
+                    {
+                      _id: expect.any(String)
+                    }
+                  ]
+                },
+                `
+                Object {
+                  "__v": 0,
+                  "_id": Any<String>,
+                  "dob": "1963-12-18T08:00:00.000Z",
+                  "films": Array [
+                    Object {
+                      "_id": Any<String>,
+                      "released": 1999,
+                      "title": "The Matrix",
+                    },
+                  ],
+                  "name": "Brad Pitt",
+                  "pob": "Shawnee, OK",
+                }
+              `
+              );
+            });
         });
     });
   });
