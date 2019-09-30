@@ -5,8 +5,8 @@
 ### Author: Evan Andrewson and Phil Fitch
 
 ### Links and Resources
-* [submission PR]()
-* [travis]()
+* [submission PR](https://github.com/evan-and-phil-ripe-bananas/ripe-banana/pull/1)
+* [travis](https://travis-ci.com/evan-and-phil-ripe-bananas/ripe-banana)
 * [heroku](https://fast-cliffs-65972.herokuapp.com/)
 
 #### Running the app
