@@ -4,7 +4,11 @@ const mongoose = require('mongoose');
 
 describe('Studio api', () => {
   beforeEach(() => {
-    return db.dropCollection('studios');
+    return db.dropCollection('studios')
+    .then (() => {
+      return db.dropCollection('films');
+
+    })
   });
 
   const hbo = {
@@ -16,9 +20,9 @@ describe('Studio api', () => {
     }
   };
 
-  const data = {
+  let data = {
     title: 'The Matrix',
-    studio: new mongoose.Types.ObjectId(),
+    // studio: new mongoose.Types.ObjectId(),
     released: 1999,
     cast: [
       {
@@ -97,6 +101,32 @@ describe('Studio api', () => {
               `
               );
             });
+        });
+    });
+  });
+
+  it('deletes a studio', () => {
+    return postStudio(hbo).then(studio => {
+      return request.delete(`/api/studios/${studio._id}`).expect(200);
+    });
+  });
+
+  it.skip('returns error if studio has a film', () => {
+    return postStudio(hbo).then(studio => {
+      const bla = {
+        ...data, 
+        studio: studio._id
+      }
+      return request
+        .post('/api/films')
+        .send(data)
+        .expect(200)
+        .then(() => {
+          expect (() => {
+            request.delete(`/api/studios/${bla.studio}`);
+          }).toThrow();
+          // return request
+          //  .delete(`/api/studios/${studio._id}`).expect(405)
         });
     });
   });
